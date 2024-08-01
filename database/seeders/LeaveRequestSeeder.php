@@ -32,9 +32,14 @@ class LeaveRequestSeeder extends Seeder
             $data = [];
     
             for ($j = 0; $j < $batchSize; $j++) {
+
+                $startDate = $faker->dateTimeBetween('-1 year', 'now');
+                $hoursToAdd = rand(24, 240); // 1 - 10 days
+                $endDate = (clone $startDate)->modify('+' . $hoursToAdd . ' hours');
+
                 $data[] = [
-                    'start_date' => $faker->date(),
-                    'end_date' => $faker->date(),
+                    'start_date' => $startDate->format('Y-m-d H:i:s'),
+                    'end_date' => $endDate->format('Y-m-d H:i:s'),
                     'leave_type' => $faker->randomElement(['personal', 'sick', 'vacation', 'bereavement']),
                     'reason' => $faker->text(100),
                     'user_id' => $faker->randomElement($userIds),
