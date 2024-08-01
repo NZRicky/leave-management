@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('leave_requests', function (Blueprint $table) {
             $table->id();
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->enum('leave_type', ['personal', 'sick', 'vacation', 'bereavement']);
+            $table->text('reason');
+            $table->foreignId('user_id')->constrained();            
             $table->timestamps();
         });
     }
