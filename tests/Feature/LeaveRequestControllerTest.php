@@ -74,14 +74,14 @@ class LeaveRequestControllerTest extends TestCase
         ];
 
         // update it with provided data 
-        $response = $this->putJson('/api/leave-requests/'. $leaveRequest->id, $updatedData);
+        $response = $this->putJson('/api/leave-requests/' . $leaveRequest->id, $updatedData);
 
         $response->assertStatus(200)
             ->assertJson([
                 'data' => $updatedData
             ]);
 
-        $leaveRequest->refresh();            
+        $leaveRequest->refresh();
 
         $this->assertEquals($updatedData['user_id'], $leaveRequest->user_id);
         $this->assertEquals($updatedData['start_date'], $leaveRequest->start_date);
@@ -89,5 +89,23 @@ class LeaveRequestControllerTest extends TestCase
         $this->assertEquals($updatedData['leave_type'], $leaveRequest->leave_type);
         $this->assertEquals($updatedData['reason'], $leaveRequest->reason);
     }
+
+
+    /**
+     * test delete method of the controller
+     */
+    public function test_can_delete_leave_request(): void
+    {
+        // create a new fake leave request in database first
+        $leaveRequest = LeaveRequest::factory()->create();
+
+        $response = $this->deleteJson(route('leave-requests.destroy', $leaveRequest));
+
+        $response->assertStatus(204);
+
+        $this->assertDatabaseMissing('leave_requests', ['id' => $leaveRequest->id]);
+
+    }
+
 
 }

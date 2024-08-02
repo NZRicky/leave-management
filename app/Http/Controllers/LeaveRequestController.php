@@ -51,6 +51,8 @@ class LeaveRequestController extends Controller
      */
     public function destroy(LeaveRequest $leaveRequest)
     {
-        //
+        $leaveRequest->delete();
+
+        return response()->json(null, 204);
     }
 }
