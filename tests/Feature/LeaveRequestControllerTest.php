@@ -62,35 +62,32 @@ class LeaveRequestControllerTest extends TestCase
      */
     public function test_can_update_leave_request(): void
     {
-        // get fake leave request
-        $leaveRequest = LeaveRequest::factory()->make();
+        // create a new fake leave request in database first
+        $leaveRequest = LeaveRequest::factory()->create();
 
-        $response = $this->putJson('/api/leave-requests/2', [
+        $updatedData = [
             'user_id' => 2,
             'start_date' => '2022-10-22 11:30:00',
             'end_date' => '2022-10-24 11:30:00',
             'leave_type' => 'sick',
             'reason' => 'test reason'
-        ]);
+        ];
 
-        $leaveRequest->refresh();
+        // update it with provided data 
+        $response = $this->putJson('/api/leave-requests/'. $leaveRequest->id, $updatedData);
 
         $response->assertStatus(200)
             ->assertJson([
-                'data' => [
-                    'user_id' => 2,
-                    'start_date' => '2022-10-22 11:30:00',
-                    'end_date' => '2022-10-24 11:30:00',
-                    'leave_type' => 'sick',
-                    'reason' => 'test reason'
-                ]
+                'data' => $updatedData
             ]);
 
-        $this->assertEquals('user_id', $leaveRequest->user_id);
-        $this->assertEquals('start_date', $leaveRequest->start_date);
-        $this->assertEquals('end_date', $leaveRequest->end_date);
-        $this->assertEquals('sick', $leaveRequest->leave_type);
-        $this->assertEquals('test reason', $leaveRequest->reason);
+        $leaveRequest->refresh();            
+
+        $this->assertEquals($updatedData['user_id'], $leaveRequest->user_id);
+        $this->assertEquals($updatedData['start_date'], $leaveRequest->start_date);
+        $this->assertEquals($updatedData['end_date'], $leaveRequest->end_date);
+        $this->assertEquals($updatedData['leave_type'], $leaveRequest->leave_type);
+        $this->assertEquals($updatedData['reason'], $leaveRequest->reason);
     }
 
 }
