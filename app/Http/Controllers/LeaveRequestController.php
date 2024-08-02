@@ -6,6 +6,8 @@ use App\Http\Requests\StoreLeaveRequestRequest;
 use App\Http\Requests\UpdateLeaveRequestRequest;
 use App\Http\Resources\LeaveRequestResource;
 use App\Models\LeaveRequest;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class LeaveRequestController extends Controller
 {
@@ -39,7 +41,9 @@ class LeaveRequestController extends Controller
      */
     public function update(UpdateLeaveRequestRequest $request, LeaveRequest $leaveRequest)
     {
-        //
+        $leaveRequest->update($request->validated());
+
+        return new LeaveRequestResource($leaveRequest);
     }
 
     /**
