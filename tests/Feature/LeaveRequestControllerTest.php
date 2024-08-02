@@ -56,4 +56,41 @@ class LeaveRequestControllerTest extends TestCase
 
     }
 
+
+    /**
+     * test update method of the controller
+     */
+    public function test_can_update_leave_request(): void
+    {
+        // get fake leave request
+        $leaveRequest = LeaveRequest::factory()->make();
+
+        $response = $this->putJson('/api/leave-requests/2', [
+            'user_id' => 2,
+            'start_date' => '2022-10-22 11:30:00',
+            'end_date' => '2022-10-24 11:30:00',
+            'leave_type' => 'sick',
+            'reason' => 'test reason'
+        ]);
+
+        $leaveRequest->refresh();
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'user_id' => 2,
+                    'start_date' => '2022-10-22 11:30:00',
+                    'end_date' => '2022-10-24 11:30:00',
+                    'leave_type' => 'sick',
+                    'reason' => 'test reason'
+                ]
+            ]);
+
+        $this->assertEquals('user_id', $leaveRequest->user_id);
+        $this->assertEquals('start_date', $leaveRequest->start_date);
+        $this->assertEquals('end_date', $leaveRequest->end_date);
+        $this->assertEquals('sick', $leaveRequest->leave_type);
+        $this->assertEquals('test reason', $leaveRequest->reason);
+    }
+
 }
