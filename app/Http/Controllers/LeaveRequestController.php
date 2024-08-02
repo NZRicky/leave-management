@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLeaveRequestRequest;
 use App\Http\Requests\UpdateLeaveRequestRequest;
+use App\Http\Resources\LeaveRequestResource;
 use App\Models\LeaveRequest;
 
 class LeaveRequestController extends Controller
@@ -13,7 +14,7 @@ class LeaveRequestController extends Controller
      */
     public function index()
     {
-        //
+        return LeaveRequestResource::collection(LeaveRequest::all());
     }
 
     /**
@@ -21,7 +22,8 @@ class LeaveRequestController extends Controller
      */
     public function store(StoreLeaveRequestRequest $request)
     {
-        //
+        $leaveRequest = LeaveRequest::create($request->validated());
+        return new LeaveRequestResource($leaveRequest);
     }
 
     /**
