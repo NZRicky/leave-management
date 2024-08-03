@@ -3,3 +3,7 @@
   margin: 0 auto;
   padding: 2rem;
 }
+
+#root .react-datetime-picker__wrapper {
+  border: none;
+}
