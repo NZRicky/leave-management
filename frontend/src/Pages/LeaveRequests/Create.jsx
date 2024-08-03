@@ -109,10 +109,10 @@ export default function Create() {
 		// no form errors, backend to process the form
 		try {
 			await axios.post("http://127.0.0.1:8000/api/leave-requests", {
-				startDate,
-				endDate,
-				userId,
-				leaveType,
+				start_date: startDate,
+				end_date: endDate,
+				user_id: userId,
+				leave_type: leaveType,
 				reason
 			});
 
