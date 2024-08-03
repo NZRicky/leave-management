@@ -5,10 +5,12 @@ import "react-datetime-picker/dist/DateTimePicker.css";
 import 'react-calendar/dist/Calendar.css';
 import 'react-clock/dist/Clock.css';
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 
 export default function Create() {
+
+	const navigateTo = useNavigate();
 
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
@@ -128,6 +130,9 @@ export default function Create() {
 			setTotalDays('');
 			setReason('');
 			setLeaveType('');
+
+			// redirect to home page
+			navigateTo("/");
 		} catch (error) {
 			console.log("Error while creating new leave request:", error);
 		}
