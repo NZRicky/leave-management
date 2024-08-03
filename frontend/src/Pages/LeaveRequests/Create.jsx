@@ -12,12 +12,55 @@ export default function Create() {
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
 
+	const [totalDays, setTotalDays] = useState(0);
+
 	const [userId, setUserId] = useState(0);
 	const [reason, setReason] = useState('');
 	const [leaveType, setLeaveType] = useState('');
 
 	const [errors, setErrors] = useState({});
 
+	// calculate total leave days for given start date and end date
+    const calculateTotalDays = (start, end) => {
+        if (start && end && new Date(end) > new Date(start)) {
+            const diffTime = new Date(end) - new Date(start);
+            const diffDays = (diffTime / (1000 * 60 * 60 * 24)).toFixed(2);
+            setTotalDays(diffDays);
+        } else {
+            setTotalDays(0);
+        }
+    };
+
+	// valid start date & end date to show related error message when field value changed
+	const validStartAndEndDate = (start, end) => {
+		errors.startDate = '';
+		errors.endDate = '';
+		if (start && new Date() > new Date(start)) {
+			errors.startDate = 'Start date cannot be before current date';
+		} else if (start && end && (new Date(end) < new Date(start))) {
+			errors.endDate = 'End date cannot be before start date';
+		}	
+	};
+	
+	// handle start date change to show related errors
+	const handleStartDateChange = (date) => {
+		setStartDate(date);
+		calculateTotalDays(date, endDate);
+
+		validStartAndEndDate(date, endDate);
+	};
+
+	// handle end date change to show related errors
+	const handleEndDateChange = (date) => {
+		setEndDate(date);
+		calculateTotalDays(startDate, date);
+
+		validStartAndEndDate(startDate, date);
+	};
+
+
+
+	// handle form submission, valid form fields before submit to backend
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
@@ -29,22 +72,26 @@ export default function Create() {
 
 		// check if start date before current date
 		if (new Date() > new Date(startDate)) {
-            formErrors.startDate = 'Start date cannot be before current date';
-        }		
-		
+			formErrors.startDate = 'Start date cannot be before current date';
+		}
+
 		if (!endDate) {
 			formErrors.endDate = 'Please select an end date';
 		}
 
 		// check if end date before start date
 		if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
-            formErrors.endDate = 'End date cannot be before start date';
-        }
+			formErrors.endDate = 'End date cannot be before start date';
+		}
+
+		if (totalDays == 0) {
+			formErrors.totalDays = 'Total leave days is 0';
+		}
 
 		if (!leaveType) {
 			formErrors.leaveType = 'Please select leave type';
 		}
-		
+
 		if (!userId) {
 			formErrors.userId = 'Please select a user';
 		}
@@ -58,8 +105,6 @@ export default function Create() {
 		if (Object.keys(formErrors).length !== 0) {
 			return false;
 		}
-
-		console.log(startDate, endDate, userId, leaveType, reason);
 
 		// no form errors, backend to process the form
 		try {
@@ -89,7 +134,7 @@ export default function Create() {
 					<DateTimePicker
 						id="start-date"
 						value={startDate}
-						onChange={setStartDate}
+						onChange={handleStartDateChange}
 						className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
 					></DateTimePicker>
 					{errors.startDate && <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>}
@@ -99,17 +144,27 @@ export default function Create() {
 					<DateTimePicker
 						id="end-date"
 						value={endDate}
-						onChange={setEndDate}
+						onChange={handleEndDateChange}
 						className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
 					></DateTimePicker>
 					{errors.endDate && <p className="text-red-500 text-sm mt-1">{errors.endDate}</p>}
 				</div>
+				<div className="mb-4">
+					<label htmlFor="total-day" className="block text-sm font-medium text-gray-700 mb-1">Total Days</label>
+					<input 
+						type="text" 
+						value={totalDays}
+						className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm" 
+						readOnly />
+						{errors.totalDays && <p className="text-red-500 text-sm mt-1">{errors.totalDays}</p>}
+				</div>
+
 
 				<div className="mb-4">
 					<label htmlFor="leave-type" className="block text-sm font-medium text-gray-700 mb-1">Leave Type</label>
 					<select
-						id="leave-type" 
-						value={leaveType} 
+						id="leave-type"
+						value={leaveType}
 						onChange={(e) => setLeaveType(e.target.value)}
 						className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
 					>
@@ -124,8 +179,8 @@ export default function Create() {
 				<div className="mb-4">
 					<label htmlFor="user" className="block text-sm font-medium text-gray-700 mb-1">User</label>
 					<select
-						id="user" 
-						value={userId} 
+						id="user"
+						value={userId}
 						onChange={(e) => setUserId(e.target.value)}
 						className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
 					>
@@ -138,7 +193,7 @@ export default function Create() {
 				</div>
 				<div className="mb-4">
 					<label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-					<textarea 
+					<textarea
 						maxLength={50}
 						id="reason"
 						onChange={(e) => setReason(e.target.value)}
@@ -149,7 +204,7 @@ export default function Create() {
 				</div>
 				<div>
 					<Link
-						to="/" 
+						to="/"
 						className="inline-block px-4 py-2 mr-4 bg-gray-600 text-white font-medium rounded-md shadow-sm hover:bg-grey-700"
 					>
 						Cancel
