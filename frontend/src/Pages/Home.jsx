@@ -31,7 +31,7 @@ export default function Home() {
 		<div>
 			<Link
 				to="/leave-requests/create"
-				className="px-4 py-2 mt-4 rounded-md bg-blue-500 text-white float-right mb-10"
+				className="px-4 py-2 mt-4 rounded-md bg-blue-500 text-white float-right mb-10 hover:bg-indigo-700"
 			>
 				Create new Leave Request
 			</Link>
