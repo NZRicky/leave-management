@@ -6,13 +6,14 @@ import 'react-calendar/dist/Calendar.css';
 import 'react-clock/dist/Clock.css';
 import axios from "axios";
 import { Link } from "react-router-dom";
+import moment from "moment";
 
 export default function Create() {
 
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
 
-	const [totalDays, setTotalDays] = useState(0);
+	const [totalDays, setTotalDays] = useState('');
 
 	const [userId, setUserId] = useState(0);
 	const [reason, setReason] = useState('');
@@ -21,15 +22,15 @@ export default function Create() {
 	const [errors, setErrors] = useState({});
 
 	// calculate total leave days for given start date and end date
-    const calculateTotalDays = (start, end) => {
-        if (start && end && new Date(end) > new Date(start)) {
-            const diffTime = new Date(end) - new Date(start);
-            const diffDays = (diffTime / (1000 * 60 * 60 * 24)).toFixed(2);
-            setTotalDays(diffDays);
-        } else {
-            setTotalDays(0);
-        }
-    };
+	const calculateTotalDays = (start, end) => {
+		if (start && end && new Date(end) > new Date(start)) {
+			const diffTime = new Date(end) - new Date(start);
+			const diffDays = (diffTime / (1000 * 60 * 60 * 24)).toFixed(2);
+			setTotalDays(diffDays);
+		} else {
+			setTotalDays(0);
+		}
+	};
 
 	// valid start date & end date to show related error message when field value changed
 	const validStartAndEndDate = (start, end) => {
@@ -39,9 +40,9 @@ export default function Create() {
 			errors.startDate = 'Start date cannot be before current date';
 		} else if (start && end && (new Date(end) < new Date(start))) {
 			errors.endDate = 'End date cannot be before start date';
-		}	
+		}
 	};
-	
+
 	// handle start date change to show related errors
 	const handleStartDateChange = (date) => {
 		setStartDate(date);
@@ -59,6 +60,10 @@ export default function Create() {
 	};
 
 
+	// format date to "YYYY-MM-DD HH:mm"
+	const formatDate = (date) => {
+		return moment(date).format("YYYY-MM-DD HH:mm");
+	};
 
 	// handle form submission, valid form fields before submit to backend
 	const handleSubmit = async (e) => {
@@ -109,14 +114,18 @@ export default function Create() {
 		// no form errors, backend to process the form
 		try {
 			await axios.post("http://127.0.0.1:8000/api/leave-requests", {
-				start_date: startDate,
-				end_date: endDate,
+				start_date: formatDate(startDate),
+				end_date: formatDate(endDate),
 				user_id: userId,
 				leave_type: leaveType,
 				reason
 			});
 
+			// reset form after submission
+			setStartDate('');
+			setEndDate('');
 			setUserId(0);
+			setTotalDays('');
 			setReason('');
 			setLeaveType('');
 		} catch (error) {
@@ -151,12 +160,13 @@ export default function Create() {
 				</div>
 				<div className="mb-4">
 					<label htmlFor="total-day" className="block text-sm font-medium text-gray-700 mb-1">Total Days</label>
-					<input 
-						type="text" 
+					<input
+						type="text"
 						value={totalDays}
-						className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm" 
-						readOnly />
-						{errors.totalDays && <p className="text-red-500 text-sm mt-1">{errors.totalDays}</p>}
+						className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm"
+						readOnly
+					/>
+					{errors.totalDays && <p className="text-red-500 text-sm mt-1">{errors.totalDays}</p>}
 				</div>
 
 
@@ -194,6 +204,7 @@ export default function Create() {
 				<div className="mb-4">
 					<label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
 					<textarea
+						value={reason}
 						maxLength={50}
 						id="reason"
 						onChange={(e) => setReason(e.target.value)}
