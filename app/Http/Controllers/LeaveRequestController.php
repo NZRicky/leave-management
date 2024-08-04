@@ -16,7 +16,8 @@ class LeaveRequestController extends Controller
      */
     public function index()
     {
-        return LeaveRequestResource::collection(LeaveRequest::all());
+        $leaveRequests = LeaveRequest::with('user')->orderBy('start_date')->get();
+        return LeaveRequestResource::collection($leaveRequests);
     }
 
     /**
