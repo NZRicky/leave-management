@@ -15,6 +15,8 @@ export default function Home() {
 	const [filterStartDate, setFilterStartDate] = useState("");
 	const [filterEndDate, setFilterEndDate] = useState("");
 
+	const [searchTerm, setSearchTerm] = useState("");
+
 	// calculate leave days with 2 decimal place
 	const calculateLeaveDays = (startDate, endDate) => {
 		const start = new Date(startDate);
@@ -78,6 +80,20 @@ export default function Home() {
 		setFilteredLeaveRequests(filteredData);
 	};
 
+	// Search function
+	// not sure if we need this function as we already have filter function to filter user
+	// and start date & end date
+	const handleSearch = () => {
+		const searchedData = leaveRequests.filter(item =>
+			item.user_id.toString().includes(searchTerm) ||
+			item.start_date.includes(searchTerm) ||
+			item.end_date.includes(searchTerm) ||
+			item.leave_type.toLowerCase().includes(searchTerm.toLowerCase())
+		);
+
+		setFilteredLeaveRequests(searchedData);
+	};
+
 	// get sorting icon based on the current sorting state
 	const getSortIcon = (column) => {
 		if (sortColumn !== column) {
@@ -121,11 +137,27 @@ export default function Home() {
 				/>
 				<button
 					onClick={handleFilter}
-					className="px-4 py-2 bg-green-500 text-white rounded mr-2 hover:bg-green-700"
+					className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
 				>
 					Filter
 				</button>
 			</div>
+			<div className="mb-4">
+				<input
+					type="text"
+					placeholder="Search"
+					value={searchTerm}
+					onChange={(e) => setSearchTerm(e.target.value)}
+					className="px-2 py-1 border border-gray-300 rounded mr-2"
+				/>
+				<button
+					onClick={handleSearch}
+					className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
+				>
+					Search
+				</button>
+			</div>
+
 
 			<div className="table-wrapper">
 				<table className="min-w-full divide-y divide-gray-200">
