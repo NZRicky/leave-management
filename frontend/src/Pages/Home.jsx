@@ -92,7 +92,7 @@ export default function Home() {
 		let filteredData = leaveRequests;
 
 		if (filterUser) {
-			filteredData = filteredData.filter(item => item.user_id.toString().includes(filterUser));
+			filteredData = filteredData.filter(item => item.user_name.toString().toLowerCase().includes(filterUser.toLowerCase()));
 		}
 
 		if (filterStartDate) {
@@ -106,10 +106,19 @@ export default function Home() {
 		setFilteredLeaveRequests(filteredData);
 	};
 
+	// reset filter function
+	const handleResetFilter = () => {
+		setFilterUser('');
+		setFilterStartDate('');
+		setFilterEndDate('');
+
+		setFilteredLeaveRequests(leaveRequests);
+	};
+
 	// Search function
 	const handleSearch = () => {
 		const searchedData = leaveRequests.filter(item =>
-			item.user_id.toString().includes(searchTerm) ||
+			item.user_name.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
 			item.start_date.includes(searchTerm) ||
 			item.end_date.includes(searchTerm) ||
 			item.leave_type.toLowerCase().includes(searchTerm.toLowerCase())
@@ -140,9 +149,9 @@ export default function Home() {
 						<thead className="bg-gray-100">
 							<tr>
 								<th
-									onClick={() => handleSort('user_id')}
+									onClick={() => handleSort('user_name')}
 									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-								>User {getSortIcon('user_id')}</th>
+								>User {getSortIcon('user_name')}</th>
 								<th
 									onClick={() => handleSort('start_date')}
 									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
@@ -164,7 +173,7 @@ export default function Home() {
 						<tbody className="bg-white divide-y divide-gray-200">
 							{groupedLeaveRequests[userId].map((leaveRequest) => (
 								<tr className="odd:bg-gray-50 even:bg-white" key={leaveRequest.id}>
-									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.user_id}</td>
+									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.user_name}</td>
 									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.start_date}</td>
 									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.end_date}</td>
 									<td className="px-6 py-2 whitespace-nowrap">{calculateLeaveDays(leaveRequest.start_date, leaveRequest.end_date)}</td>
@@ -181,9 +190,9 @@ export default function Home() {
 					<thead className="bg-gray-100">
 						<tr>
 							<th
-								onClick={() => handleSort('user_id')}
+								onClick={() => handleSort('user_name')}
 								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>User {getSortIcon('user_id')}</th>
+							>User {getSortIcon('user_name')}</th>
 							<th
 								onClick={() => handleSort('start_date')}
 								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
@@ -205,7 +214,7 @@ export default function Home() {
 					<tbody className="bg-white divide-y divide-gray-200">
 						{filteredLeaveRequests && filteredLeaveRequests.map((leaveRequest) => (
 							<tr className="odd:bg-gray-50 even:bg-white" key={leaveRequest.id}>
-								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.user_id}</td>
+								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.user_name}</td>
 								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.start_date}</td>
 								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.end_date}</td>
 								<td className="px-6 py-2 whitespace-nowrap">{calculateLeaveDays(leaveRequest.start_date, leaveRequest.end_date)}</td>
@@ -253,10 +262,17 @@ export default function Home() {
 				/>
 				<button
 					onClick={handleFilter}
-					className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
+					className="px-4 py-2 mr-2 bg-green-500 text-white rounded hover:bg-green-700"
 				>
 					Filter
 				</button>
+				<button
+					onClick={handleResetFilter}
+					className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700"
+				>
+					Reset
+				</button>
+
 			</div>
 			<div className="mb-4">
 				<input
