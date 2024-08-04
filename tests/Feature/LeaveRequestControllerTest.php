@@ -37,13 +37,13 @@ class LeaveRequestControllerTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJson([
-                'data' => [
-                    'user_id' => $leaveRequest->user_id,
-                    'start_date' => $leaveRequest->start_date,
-                    'end_date' => $leaveRequest->end_date,
-                    'leave_type' => $leaveRequest->leave_type,
-                    'reason' => $leaveRequest->reason
-                ]
+                'user_id' => $leaveRequest->user_id,
+                'user_name' => $leaveRequest->user->name,
+                'start_date' => $leaveRequest->start_date,
+                'end_date' => $leaveRequest->end_date,
+                'leave_type' => $leaveRequest->leave_type,
+                'reason' => $leaveRequest->reason
+
             ]);
 
         $this->assertDatabaseHas('leave_requests', [
@@ -66,9 +66,11 @@ class LeaveRequestControllerTest extends TestCase
         $leaveRequest = LeaveRequest::factory()->create();
 
         $updatedData = [
-            'user_id' => 2,
+            'id' => $leaveRequest->id,
+            'user_id' => $leaveRequest->user_id,
             'start_date' => '2022-10-22 11:30:00',
             'end_date' => '2022-10-24 11:30:00',
+            'user_name' => $leaveRequest->user->name,
             'leave_type' => 'sick',
             'reason' => 'test reason'
         ];
@@ -77,9 +79,7 @@ class LeaveRequestControllerTest extends TestCase
         $response = $this->putJson('/api/leave-requests/' . $leaveRequest->id, $updatedData);
 
         $response->assertStatus(200)
-            ->assertJson([
-                'data' => $updatedData
-            ]);
+            ->assertJson($updatedData);
 
         $leaveRequest->refresh();
 
