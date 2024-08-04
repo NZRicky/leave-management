@@ -17,6 +17,27 @@ export default function Home() {
 
 	const [searchTerm, setSearchTerm] = useState("");
 
+	const [groupedLeaveRequests, setGroupedLeaveRequests] = useState({});
+	// state to toggle between grouped and ungrouped views
+	const [viewGrouped, setViewGrouped] = useState(false);
+
+
+	// group leave requests by user
+	const groupByUser = (data) => {
+		const groupedData = data.reduce((user, leaveRequestData) => {
+			console.log('user', user);
+			console.log('leaveRequestData', leaveRequestData);
+			if (!user[leaveRequestData.user_id]) {
+				user[leaveRequestData.user_id] = [];
+			}
+			user[leaveRequestData.user_id].push(leaveRequestData);
+			return user;
+		}, {});
+
+		console.log('groupedData', groupedData);
+		setGroupedLeaveRequests(groupedData);
+	};
+
 	// calculate leave days with 2 decimal place
 	const calculateLeaveDays = (startDate, endDate) => {
 		const start = new Date(startDate);
@@ -32,6 +53,9 @@ export default function Home() {
 			.then((response) => {
 				setLeaveRequests(response.data);
 				setFilteredLeaveRequests(response.data);
+
+				// group data by user
+				groupByUser(response.data);
 			})
 			.catch((error) => {
 				console.error('Error while fetching data:', error);
@@ -59,6 +83,8 @@ export default function Home() {
 		});
 
 		setFilteredLeaveRequests(sortedData);
+		// group filtered data by user
+		groupByUser(sortedData);
 	};
 
 	// filter function
@@ -81,8 +107,6 @@ export default function Home() {
 	};
 
 	// Search function
-	// not sure if we need this function as we already have filter function to filter user
-	// and start date & end date
 	const handleSearch = () => {
 		const searchedData = leaveRequests.filter(item =>
 			item.user_id.toString().includes(searchTerm) ||
@@ -92,6 +116,9 @@ export default function Home() {
 		);
 
 		setFilteredLeaveRequests(searchedData);
+
+		// group searched data by user
+		groupByUser(searchedData);
 	};
 
 	// get sorting icon based on the current sorting state
@@ -100,6 +127,95 @@ export default function Home() {
 			return <FaSort />;
 		}
 		return sortDirection === 'asc' ? <FaSortUp /> : <FaSortDown />;
+	};
+
+	// render grouped or ungrouped leave requests
+	const renderLeaveRequests = () => {
+		if (viewGrouped) {
+			console.log(Object.keys(groupedLeaveRequests));
+			return Object.keys(groupedLeaveRequests).map(userId => (
+				<div key={userId}>
+					<h3>User ID: {userId}</h3>
+					<table className="min-w-full divide-y divide-gray-200">
+						<thead className="bg-gray-100">
+							<tr>
+								<th
+									onClick={() => handleSort('user_id')}
+									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+								>User {getSortIcon('user_id')}</th>
+								<th
+									onClick={() => handleSort('start_date')}
+									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+								>Start Date {getSortIcon('start_date')}</th>
+								<th
+									onClick={() => handleSort('end_date')}
+									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+								>End Date {getSortIcon('end_date')}</th>
+								<th
+									onClick={() => handleSort('no_of_days')}
+									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+								>No. of Days {getSortIcon('no_of_days')}</th>
+								<th
+									onClick={() => handleSort('leave_type')}
+									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+								>Leave Type {getSortIcon('leave_type')}</th>
+							</tr>
+						</thead>
+						<tbody className="bg-white divide-y divide-gray-200">
+							{groupedLeaveRequests[userId].map((leaveRequest) => (
+								<tr className="odd:bg-gray-50 even:bg-white" key={leaveRequest.id}>
+									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.user_id}</td>
+									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.start_date}</td>
+									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.end_date}</td>
+									<td className="px-6 py-2 whitespace-nowrap">{calculateLeaveDays(leaveRequest.start_date, leaveRequest.end_date)}</td>
+									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.leave_type}</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			));
+		} else {
+			return (
+				<table className="min-w-full divide-y divide-gray-200">
+					<thead className="bg-gray-100">
+						<tr>
+							<th
+								onClick={() => handleSort('user_id')}
+								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+							>User {getSortIcon('user_id')}</th>
+							<th
+								onClick={() => handleSort('start_date')}
+								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+							>Start Date {getSortIcon('start_date')}</th>
+							<th
+								onClick={() => handleSort('end_date')}
+								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+							>End Date {getSortIcon('end_date')}</th>
+							<th
+								onClick={() => handleSort('no_of_days')}
+								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+							>No. of Days {getSortIcon('no_of_days')}</th>
+							<th
+								onClick={() => handleSort('leave_type')}
+								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+							>Leave Type {getSortIcon('leave_type')}</th>
+						</tr>
+					</thead>
+					<tbody className="bg-white divide-y divide-gray-200">
+						{filteredLeaveRequests && filteredLeaveRequests.map((leaveRequest) => (
+							<tr className="odd:bg-gray-50 even:bg-white" key={leaveRequest.id}>
+								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.user_id}</td>
+								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.start_date}</td>
+								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.end_date}</td>
+								<td className="px-6 py-2 whitespace-nowrap">{calculateLeaveDays(leaveRequest.start_date, leaveRequest.end_date)}</td>
+								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.leave_type}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			);
+		}
 	};
 
 	return (
@@ -157,47 +273,23 @@ export default function Home() {
 					Search
 				</button>
 			</div>
-
+			<div className="mb-4">
+				<button
+					onClick={() => setViewGrouped(true)}
+					className={`px-4 py-2 mr-2 ${viewGrouped ? 'bg-gray-500' : 'bg-blue-500'} text-white rounded hover:bg-blue-700`}
+				>
+					Group by User
+				</button>
+				<button
+					onClick={() => setViewGrouped(false)}
+					className={`px-4 py-2 ${viewGrouped ? 'bg-blue-500' : 'bg-gray-500'} text-white rounded hover:bg-blue-700`}
+				>
+					Show All
+				</button>
+			</div>
 
 			<div className="table-wrapper">
-				<table className="min-w-full divide-y divide-gray-200">
-					<thead className="bg-gray-100">
-						<tr>
-							<th
-								onClick={() => handleSort('user_id')}
-								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>User {getSortIcon('user_id')}</th>
-							<th
-								onClick={() => handleSort('start_date')}
-								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>Start Date {getSortIcon('start_date')}</th>
-							<th
-								onClick={() => handleSort('end_date')}
-								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>End Date {getSortIcon('end_date')}</th>
-							<th
-								onClick={() => handleSort('no_of_days')}
-								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>No. of Days {getSortIcon('no_of_days')}</th>
-							<th
-								onClick={() => handleSort('leave_type')}
-								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>Leave Type {getSortIcon('leave_type')}</th>
-						</tr>
-					</thead>
-					<tbody className="bg-white divide-y divide-gray-200">
-						{filteredLeaveRequests && filteredLeaveRequests.map((leaveRequest) => (
-							<tr className="odd:bg-gray-50 even:bg-white" key={leaveRequest.id}>
-								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.user_id}</td>
-								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.start_date}</td>
-								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.end_date}</td>
-								<td className="px-6 py-2 whitespace-nowrap">{calculateLeaveDays(leaveRequest.start_date, leaveRequest.end_date)}</td>
-								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.leave_type}</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
-
+				{renderLeaveRequests()}
 			</div>
 		</div>
 	);
