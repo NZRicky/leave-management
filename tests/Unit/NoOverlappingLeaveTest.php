@@ -10,8 +10,6 @@ use Tests\TestCase;
 
 class NoOverlappingLeaveTest extends TestCase
 {
-    use RefreshDatabase;
-
     private $userId;
 
     public function setUp(): void

@@ -41,7 +41,7 @@ class LeaveRequestSeeder extends Seeder
                     'start_date' => $startDate->format('Y-m-d H:i:s'),
                     'end_date' => $endDate->format('Y-m-d H:i:s'),
                     'leave_type' => $faker->randomElement(['personal', 'sick', 'vacation', 'bereavement']),
-                    'reason' => $faker->text(100),
+                    'reason' => $faker->text(50),
                     'user_id' => $faker->randomElement($userIds),
                     'created_at' => now(),
                     'updated_at' => now(),
