@@ -6,9 +6,14 @@ import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 export default function Home() {
 
 	const [leaveRequests, setLeaveRequests] = useState([]);
+	const [filteredLeaveRequests, setFilteredLeaveRequests] = useState([]);
 
 	const [sortColumn, setSortColumn] = useState("start_date");
 	const [sortDirection, setSortDirection] = useState("asc");
+
+	const [filterUser, setFilterUser] = useState("");
+	const [filterStartDate, setFilterStartDate] = useState("");
+	const [filterEndDate, setFilterEndDate] = useState("");
 
 	// calculate leave days with 2 decimal place
 	const calculateLeaveDays = (startDate, endDate) => {
@@ -24,6 +29,7 @@ export default function Home() {
 		axios.get("http://127.0.0.1:8000/api/leave-requests")
 			.then((response) => {
 				setLeaveRequests(response.data);
+				setFilteredLeaveRequests(response.data);
 			})
 			.catch((error) => {
 				console.error('Error while fetching data:', error);
@@ -33,11 +39,11 @@ export default function Home() {
 	// sort function 
 	const handleSort = (column) => {
 		const newDirection = sortColumn === column && sortDirection === "asc" ? "desc" : "asc";
-		
+
 		setSortColumn(column);
 		setSortDirection(newDirection);
 
-		const sortedData = [...leaveRequests].sort((a, b) => {
+		const sortedData = [...filteredLeaveRequests].sort((a, b) => {
 			if (column === 'no_of_days') {
 				return (calculateLeaveDays(a.start_date, a.end_date) - calculateLeaveDays(b.start_date, b.end_date)) * (newDirection === 'asc' ? 1 : -1);
 			}
@@ -50,17 +56,35 @@ export default function Home() {
 			return 0;
 		});
 
-		setLeaveRequests(sortedData);
+		setFilteredLeaveRequests(sortedData);
 	};
 
-    // get sorting icon based on the current sorting state
-    const getSortIcon = (column) => {
-		console.log(sortColumn, sortDirection, column);
-        if (sortColumn !== column) {
-            return <FaSort />;
-        }
-        return sortDirection === 'asc' ? <FaSortUp /> : <FaSortDown />;
-    };	
+	// filter function
+	const handleFilter = () => {
+		let filteredData = leaveRequests;
+
+		if (filterUser) {
+			filteredData = filteredData.filter(item => item.user_id.toString().includes(filterUser));
+		}
+
+		if (filterStartDate) {
+			filteredData = filteredData.filter(item => new Date(item.start_date) >= new Date(filterStartDate));
+		}
+
+		if (filterEndDate) {
+			filteredData = filteredData.filter(item => new Date(item.end_date) <= new Date(filterEndDate));
+		}
+
+		setFilteredLeaveRequests(filteredData);
+	};
+
+	// get sorting icon based on the current sorting state
+	const getSortIcon = (column) => {
+		if (sortColumn !== column) {
+			return <FaSort />;
+		}
+		return sortDirection === 'asc' ? <FaSortUp /> : <FaSortDown />;
+	};
 
 	return (
 		<div>
@@ -70,6 +94,39 @@ export default function Home() {
 			>
 				Create new Leave Request
 			</Link>
+
+			<div className="mb-4">
+				<input
+					type="text"
+					placeholder="Filter by User"
+					value={filterUser}
+					onChange={(e) => setFilterUser(e.target.value)}
+					className="px-2 py-1 border border-gray-300 rounded mr-2"
+				/>
+				From:&nbsp;
+				<input
+					type="date"
+					placeholder="Filter by Start Date"
+					value={filterStartDate}
+					onChange={(e) => setFilterStartDate(e.target.value)}
+					className="px-2 py-1 border border-gray-300 rounded mr-2"
+				/>
+				To:&nbsp;
+				<input
+					type="date"
+					placeholder="Filter by End Date"
+					value={filterEndDate}
+					onChange={(e) => setFilterEndDate(e.target.value)}
+					className="px-2 py-1 border border-gray-300 rounded mr-2"
+				/>
+				<button
+					onClick={handleFilter}
+					className="px-4 py-2 bg-green-500 text-white rounded mr-2 hover:bg-green-700"
+				>
+					Filter
+				</button>
+			</div>
+
 			<div className="table-wrapper">
 				<table className="min-w-full divide-y divide-gray-200">
 					<thead className="bg-gray-100">
@@ -77,7 +134,7 @@ export default function Home() {
 							<th
 								onClick={() => handleSort('user_id')}
 								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-								>User {getSortIcon('user_id')}</th>
+							>User {getSortIcon('user_id')}</th>
 							<th
 								onClick={() => handleSort('start_date')}
 								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
@@ -97,7 +154,7 @@ export default function Home() {
 						</tr>
 					</thead>
 					<tbody className="bg-white divide-y divide-gray-200">
-						{leaveRequests && leaveRequests.map((leaveRequest) => (
+						{filteredLeaveRequests && filteredLeaveRequests.map((leaveRequest) => (
 							<tr className="odd:bg-gray-50 even:bg-white" key={leaveRequest.id}>
 								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.user_id}</td>
 								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.start_date}</td>
