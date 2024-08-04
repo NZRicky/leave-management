@@ -36,12 +36,12 @@ export default function Create() {
 
 	// valid start date & end date to show related error message when field value changed
 	const validStartAndEndDate = (start, end) => {
-		errors.startDate = '';
-		errors.endDate = '';
+		errors.start_date = '';
+		errors.end_date = '';
 		if (start && new Date() > new Date(start)) {
-			errors.startDate = 'Start date cannot be before current date';
+			errors.start_date = 'Start date cannot be before current date';
 		} else if (start && end && (new Date(end) < new Date(start))) {
-			errors.endDate = 'End date cannot be before start date';
+			errors.end_date = 'End date cannot be before start date';
 		}
 	};
 
@@ -74,21 +74,21 @@ export default function Create() {
 		const formErrors = {};
 
 		if (!startDate) {
-			formErrors.startDate = 'Please select a start date';
+			formErrors.start_date = 'Please select a start date';
 		}
 
 		// check if start date before current date
 		if (new Date() > new Date(startDate)) {
-			formErrors.startDate = 'Start date cannot be before current date';
+			formErrors.start_date = 'Start date cannot be before current date';
 		}
 
 		if (!endDate) {
-			formErrors.endDate = 'Please select an end date';
+			formErrors.end_date = 'Please select an end date';
 		}
 
 		// check if end date before start date
 		if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
-			formErrors.endDate = 'End date cannot be before start date';
+			formErrors.end_date = 'End date cannot be before start date';
 		}
 
 		if (totalDays == 0) {
@@ -96,11 +96,11 @@ export default function Create() {
 		}
 
 		if (!leaveType) {
-			formErrors.leaveType = 'Please select leave type';
+			formErrors.leave_type = 'Please select leave type';
 		}
 
 		if (!userId) {
-			formErrors.userId = 'Please select a user';
+			formErrors.user_id = 'Please select a user';
 		}
 
 		if (!reason) {
@@ -134,7 +134,19 @@ export default function Create() {
 			// redirect to home page
 			navigateTo("/");
 		} catch (error) {
-			console.log("Error while creating new leave request:", error);
+			if (error.response && error.response.status === 422) {
+				const backendErrors = error.response.data.errors;
+				const combinedErrors = { ...formErrors };
+
+				// merge backend errors with frontend errors
+				Object.keys(backendErrors).forEach((key) => {
+					combinedErrors[key] = backendErrors[key][0];
+				});
+
+				setErrors(combinedErrors);
+			} else {
+				console.log("Error while creating new leave request:", error);
+			}
 		}
 	};
 
@@ -151,7 +163,7 @@ export default function Create() {
 						onChange={handleStartDateChange}
 						className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
 					></DateTimePicker>
-					{errors.startDate && <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>}
+					{errors.start_date && <p className="text-red-500 text-sm mt-1">{errors.start_date}</p>}
 				</div>
 				<div className="mb-4">
 					<label htmlFor="end-date" className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
@@ -161,7 +173,7 @@ export default function Create() {
 						onChange={handleEndDateChange}
 						className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
 					></DateTimePicker>
-					{errors.endDate && <p className="text-red-500 text-sm mt-1">{errors.endDate}</p>}
+					{errors.end_date && <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>}
 				</div>
 				<div className="mb-4">
 					<label htmlFor="total-day" className="block text-sm font-medium text-gray-700 mb-1">Total Days</label>
@@ -189,7 +201,7 @@ export default function Create() {
 						<option value="vacation">Vacation</option>
 						<option value="bereavement">Bereavement</option>
 					</select>
-					{errors.leaveType && <p className="text-red-500 text-sm mt-1">{errors.leaveType}</p>}
+					{errors.leave_type && <p className="text-red-500 text-sm mt-1">{errors.leave_type}</p>}
 				</div>
 				<div className="mb-4">
 					<label htmlFor="user" className="block text-sm font-medium text-gray-700 mb-1">User</label>
@@ -200,11 +212,11 @@ export default function Create() {
 						className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
 					>
 						<option value="">Please select</option>
-						<option value="1">Ricky</option>
+						<option value="34">Ricky</option>
 						<option value="2">Susan</option>
 						<option value="3">Richard</option>
 					</select>
-					{errors.userId && <p className="text-red-500 text-sm mt-1">{errors.userId}</p>}
+					{errors.user_id && <p className="text-red-500 text-sm mt-1">{errors.user_id}</p>}
 				</div>
 				<div className="mb-4">
 					<label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
