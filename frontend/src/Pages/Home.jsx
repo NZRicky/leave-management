@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 
 export default function Home() {
 
@@ -32,24 +33,34 @@ export default function Home() {
 	// sort function 
 	const handleSort = (column) => {
 		const newDirection = sortColumn === column && sortDirection === "asc" ? "desc" : "asc";
+		
 		setSortColumn(column);
 		setSortDirection(newDirection);
 
 		const sortedData = [...leaveRequests].sort((a, b) => {
-			if (sortColumn === 'no_of_days') {
-				return (calculateLeaveDays(a.start_date, a.end_date) - calculateLeaveDays(b.start_date, b.end_date)) * (sortDirection === 'asc' ? 1 : -1);
+			if (column === 'no_of_days') {
+				return (calculateLeaveDays(a.start_date, a.end_date) - calculateLeaveDays(b.start_date, b.end_date)) * (newDirection === 'asc' ? 1 : -1);
 			}
-			if (a[sortColumn] < b[sortColumn]) {
-				return sortDirection === 'asc' ? -1 : 1;
+			if (a[column] < b[column]) {
+				return newDirection === 'asc' ? -1 : 1;
 			}
-			if (a[sortColumn] > b[sortColumn]) {
-				return sortDirection === 'asc' ? 1 : -1;
+			if (a[column] > b[column]) {
+				return newDirection === 'asc' ? 1 : -1;
 			}
 			return 0;
 		});
 
 		setLeaveRequests(sortedData);
 	};
+
+    // get sorting icon based on the current sorting state
+    const getSortIcon = (column) => {
+		console.log(sortColumn, sortDirection, column);
+        if (sortColumn !== column) {
+            return <FaSort />;
+        }
+        return sortDirection === 'asc' ? <FaSortUp /> : <FaSortDown />;
+    };	
 
 	return (
 		<div>
@@ -66,23 +77,23 @@ export default function Home() {
 							<th
 								onClick={() => handleSort('user_id')}
 								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-								>User</th>
+								>User {getSortIcon('user_id')}</th>
 							<th
 								onClick={() => handleSort('start_date')}
 								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>Start Date</th>
+							>Start Date {getSortIcon('start_date')}</th>
 							<th
 								onClick={() => handleSort('end_date')}
 								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>End Date</th>
+							>End Date {getSortIcon('end_date')}</th>
 							<th
 								onClick={() => handleSort('no_of_days')}
 								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>No. of Days</th>
+							>No. of Days {getSortIcon('no_of_days')}</th>
 							<th
 								onClick={() => handleSort('leave_type')}
 								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>Leave Type</th>
+							>Leave Type {getSortIcon('leave_type')}</th>
 						</tr>
 					</thead>
 					<tbody className="bg-white divide-y divide-gray-200">
