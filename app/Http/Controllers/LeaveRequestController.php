@@ -6,8 +6,8 @@ use App\Http\Requests\StoreLeaveRequestRequest;
 use App\Http\Requests\UpdateLeaveRequestRequest;
 use App\Http\Resources\LeaveRequestResource;
 use App\Models\LeaveRequest;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Rules\NoOverlappingLeave;
+use Illuminate\Http\Request as HttpRequest;
 
 class LeaveRequestController extends Controller
 {
@@ -22,9 +22,26 @@ class LeaveRequestController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreLeaveRequestRequest $request)
+    public function store(HttpRequest $request)
     {
-        $leaveRequest = LeaveRequest::create($request->validated());
+        // validate input first
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'start_date' => ['required', 'date', new NoOverlappingLeave($request->user_id, $request->start_date, $request->end_date)],
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'leave_type' => 'required|string',
+            'reason' => 'required|string|max:50',
+        ]);
+
+        // save to db
+        $leaveRequest = LeaveRequest::create([
+            'user_id' => $request->user_id,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'leave_type' => $request->leave_type,
+            'reason' => $request->reason,
+        ]);
+
         return new LeaveRequestResource($leaveRequest);
     }
 
