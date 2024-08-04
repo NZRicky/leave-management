@@ -212,9 +212,16 @@ export default function Create() {
 						className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
 					>
 						<option value="">Please select</option>
-						<option value="34">Ricky</option>
+						<option value="1">Ricky</option>
 						<option value="2">Susan</option>
 						<option value="3">Richard</option>
+						<option value="4">Jim</option>
+						<option value="5">Kate</option>
+						<option value="6">Jack</option>
+						<option value="7">Lucy</option>
+						<option value="8">Ellen</option>
+						<option value="9">Louis</option>
+						<option value="10">Max</option>
 					</select>
 					{errors.user_id && <p className="text-red-500 text-sm mt-1">{errors.user_id}</p>}
 				</div>
