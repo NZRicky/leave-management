@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import { LeaveRequestsTable } from "./LeaveRequests/LeaveRequestsTable";
 
 export default function Home() {
 
@@ -25,8 +26,6 @@ export default function Home() {
 	// group leave requests by user
 	const groupByUser = (data) => {
 		const groupedData = data.reduce((user, leaveRequestData) => {
-			console.log('user', user);
-			console.log('leaveRequestData', leaveRequestData);
 			if (!user[leaveRequestData.user_id]) {
 				user[leaveRequestData.user_id] = [];
 			}
@@ -34,7 +33,6 @@ export default function Home() {
 			return user;
 		}, {});
 
-		console.log('groupedData', groupedData);
 		setGroupedLeaveRequests(groupedData);
 	};
 
@@ -141,88 +139,27 @@ export default function Home() {
 	// render grouped or ungrouped leave requests
 	const renderLeaveRequests = () => {
 		if (viewGrouped) {
-			console.log(Object.keys(groupedLeaveRequests));
 			return Object.keys(groupedLeaveRequests).map(userId => (
 				<div key={userId}>
 					<h3>User ID: {userId}</h3>
-					<table className="min-w-full divide-y divide-gray-200">
-						<thead className="bg-gray-100">
-							<tr>
-								<th
-									onClick={() => handleSort('user_name')}
-									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-								>User {getSortIcon('user_name')}</th>
-								<th
-									onClick={() => handleSort('start_date')}
-									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-								>Start Date {getSortIcon('start_date')}</th>
-								<th
-									onClick={() => handleSort('end_date')}
-									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-								>End Date {getSortIcon('end_date')}</th>
-								<th
-									onClick={() => handleSort('no_of_days')}
-									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-								>No. of Days {getSortIcon('no_of_days')}</th>
-								<th
-									onClick={() => handleSort('leave_type')}
-									className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-								>Leave Type {getSortIcon('leave_type')}</th>
-							</tr>
-						</thead>
-						<tbody className="bg-white divide-y divide-gray-200">
-							{groupedLeaveRequests[userId].map((leaveRequest) => (
-								<tr className="odd:bg-gray-50 even:bg-white" key={leaveRequest.id}>
-									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.user_name}</td>
-									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.start_date}</td>
-									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.end_date}</td>
-									<td className="px-6 py-2 whitespace-nowrap">{calculateLeaveDays(leaveRequest.start_date, leaveRequest.end_date)}</td>
-									<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.leave_type}</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
+					<LeaveRequestsTable
+						data={groupedLeaveRequests[userId]}
+						sortColumn={sortColumn}
+						sortDirection={sortDirection}
+						handleSort={handleSort}
+						getSortIcon={getSortIcon}
+					/>
 				</div>
 			));
 		} else {
 			return (
-				<table className="min-w-full divide-y divide-gray-200">
-					<thead className="bg-gray-100">
-						<tr>
-							<th
-								onClick={() => handleSort('user_name')}
-								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>User {getSortIcon('user_name')}</th>
-							<th
-								onClick={() => handleSort('start_date')}
-								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>Start Date {getSortIcon('start_date')}</th>
-							<th
-								onClick={() => handleSort('end_date')}
-								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>End Date {getSortIcon('end_date')}</th>
-							<th
-								onClick={() => handleSort('no_of_days')}
-								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>No. of Days {getSortIcon('no_of_days')}</th>
-							<th
-								onClick={() => handleSort('leave_type')}
-								className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-							>Leave Type {getSortIcon('leave_type')}</th>
-						</tr>
-					</thead>
-					<tbody className="bg-white divide-y divide-gray-200">
-						{filteredLeaveRequests && filteredLeaveRequests.map((leaveRequest) => (
-							<tr className="odd:bg-gray-50 even:bg-white" key={leaveRequest.id}>
-								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.user_name}</td>
-								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.start_date}</td>
-								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.end_date}</td>
-								<td className="px-6 py-2 whitespace-nowrap">{calculateLeaveDays(leaveRequest.start_date, leaveRequest.end_date)}</td>
-								<td className="px-6 py-2 whitespace-nowrap">{leaveRequest.leave_type}</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
+				<LeaveRequestsTable
+					data={filteredLeaveRequests}
+					sortColumn={sortColumn}
+					sortDirection={sortDirection}
+					handleSort={handleSort}
+					getSortIcon={getSortIcon}
+				/>
 			);
 		}
 	};
