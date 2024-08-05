@@ -1,13 +1,19 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { LeaveRequestsTable } from "./LeaveRequests/LeaveRequestsTable";
+import { useLeaveRequests } from "../hooks/useLeaveRequests";
 
 export default function Home() {
 
-	const [leaveRequests, setLeaveRequests] = useState([]);
-	const [filteredLeaveRequests, setFilteredLeaveRequests] = useState([]);
+	// use useLeaveRequests hook
+	const {
+		leaveRequests,
+		filteredLeaveRequests,
+		setFilteredLeaveRequests,
+		groupedLeaveRequests,
+		groupByUser,
+	} = useLeaveRequests();
 
 	const [sortColumn, setSortColumn] = useState("start_date");
 	const [sortDirection, setSortDirection] = useState("asc");
@@ -18,23 +24,8 @@ export default function Home() {
 
 	const [searchTerm, setSearchTerm] = useState("");
 
-	const [groupedLeaveRequests, setGroupedLeaveRequests] = useState({});
 	// state to toggle between grouped and ungrouped views
 	const [viewGrouped, setViewGrouped] = useState(false);
-
-
-	// group leave requests by user
-	const groupByUser = (data) => {
-		const groupedData = data.reduce((user, leaveRequestData) => {
-			if (!user[leaveRequestData.user_id]) {
-				user[leaveRequestData.user_id] = [];
-			}
-			user[leaveRequestData.user_id].push(leaveRequestData);
-			return user;
-		}, {});
-
-		setGroupedLeaveRequests(groupedData);
-	};
 
 	// calculate leave days with 2 decimal place
 	const calculateLeaveDays = (startDate, endDate) => {
@@ -44,21 +35,6 @@ export default function Home() {
 		const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
 		return diffInDays.toFixed(2);
 	}
-
-	// fetch backend leave requests json data
-	useEffect(() => {
-		axios.get("http://127.0.0.1:8000/api/leave-requests")
-			.then((response) => {
-				setLeaveRequests(response.data);
-				setFilteredLeaveRequests(response.data);
-
-				// group data by user
-				groupByUser(response.data);
-			})
-			.catch((error) => {
-				console.error('Error while fetching data:', error);
-			})
-	}, []);
 
 	// sort function 
 	const handleSort = (column) => {
