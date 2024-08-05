@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { LeaveRequestsTable } from "./LeaveRequests/LeaveRequestsTable";
-import { useLeaveRequests } from "../hooks/useLeaveRequests";
-import { calculateLeaveDays } from "../utils/utils";
-import { useFilter } from "../hooks/useFilter";
+import { useLeaveRequests } from "../../hooks/useLeaveRequests";
+import { calculateLeaveDays } from "../../utils/utils";
+import { useFilter } from "../../hooks/useFilter";
 
 export default function Home() {
 
