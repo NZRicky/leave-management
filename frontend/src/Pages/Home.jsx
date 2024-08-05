@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { LeaveRequestsTable } from "./LeaveRequests/LeaveRequestsTable";
 import { useLeaveRequests } from "../hooks/useLeaveRequests";
+import { calculateLeaveDays } from "../utils/utils";
 
 export default function Home() {
 
@@ -26,15 +27,6 @@ export default function Home() {
 
 	// state to toggle between grouped and ungrouped views
 	const [viewGrouped, setViewGrouped] = useState(false);
-
-	// calculate leave days with 2 decimal place
-	const calculateLeaveDays = (startDate, endDate) => {
-		const start = new Date(startDate);
-		const end = new Date(endDate);
-		const diffInMs = end - start;
-		const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
-		return diffInDays.toFixed(2);
-	}
 
 	// sort function 
 	const handleSort = (column) => {

@@ -1,4 +1,5 @@
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import { calculateLeaveDays } from "../../utils/utils";
 
 export const LeaveRequestsTable = ({ data, sortColumn, sortDirection, handleSort, getSortIcon }) => (
 	<table className="min-w-full divide-y divide-gray-200">
@@ -39,11 +40,3 @@ export const LeaveRequestsTable = ({ data, sortColumn, sortDirection, handleSort
 		</tbody>
 	</table>
 );
-
-const calculateLeaveDays = (startDate, endDate) => {
-	const start = new Date(startDate);
-	const end = new Date(endDate);
-	const diffInMs = end - start;
-	const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
-	return diffInDays.toFixed(2);
-};
