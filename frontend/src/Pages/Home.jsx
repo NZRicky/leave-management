@@ -4,6 +4,7 @@ import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { LeaveRequestsTable } from "./LeaveRequests/LeaveRequestsTable";
 import { useLeaveRequests } from "../hooks/useLeaveRequests";
 import { calculateLeaveDays } from "../utils/utils";
+import { useFilter } from "../hooks/useFilter";
 
 export default function Home() {
 
@@ -16,12 +17,20 @@ export default function Home() {
 		groupByUser,
 	} = useLeaveRequests();
 
+	// useFilter hook
+	const {
+		filterUser,
+		setFilterUser,
+		filterStartDate,
+		setFilterStartDate,
+		filterEndDate,
+		setFilterEndDate,
+		handleFilter,
+		handleResetFilter,
+	} = useFilter(leaveRequests, setFilteredLeaveRequests);
+
 	const [sortColumn, setSortColumn] = useState("start_date");
 	const [sortDirection, setSortDirection] = useState("asc");
-
-	const [filterUser, setFilterUser] = useState("");
-	const [filterStartDate, setFilterStartDate] = useState("");
-	const [filterEndDate, setFilterEndDate] = useState("");
 
 	const [searchTerm, setSearchTerm] = useState("");
 
@@ -51,34 +60,6 @@ export default function Home() {
 		setFilteredLeaveRequests(sortedData);
 		// group filtered data by user
 		groupByUser(sortedData);
-	};
-
-	// filter function
-	const handleFilter = () => {
-		let filteredData = leaveRequests;
-
-		if (filterUser) {
-			filteredData = filteredData.filter(item => item.user_name.toString().toLowerCase().includes(filterUser.toLowerCase()));
-		}
-
-		if (filterStartDate) {
-			filteredData = filteredData.filter(item => new Date(item.start_date) >= new Date(filterStartDate));
-		}
-
-		if (filterEndDate) {
-			filteredData = filteredData.filter(item => new Date(item.end_date) <= new Date(filterEndDate));
-		}
-
-		setFilteredLeaveRequests(filteredData);
-	};
-
-	// reset filter function
-	const handleResetFilter = () => {
-		setFilterUser('');
-		setFilterStartDate('');
-		setFilterEndDate('');
-
-		setFilteredLeaveRequests(leaveRequests);
 	};
 
 	// Search function
